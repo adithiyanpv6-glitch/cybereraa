@@ -1,3 +1,13 @@
+---
+title: ERA_CURITY
+emoji: 🛡️
+colorFrom: gray
+colorTo: red
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # ⚡ ERA_CURITY
 
 **Defying AI Gravity — Autonomous Defense Against Agentic Threats**
