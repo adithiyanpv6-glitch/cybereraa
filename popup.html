@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antigravity</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 380px;
+      min-height: 200px;
+      background: #0a0e1a;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 13px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1e2a4a;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .logo-text {
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #a5b4fc, #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .scan-btn {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .scan-btn:hover { background: #4f46e5; }
+    .scan-btn:disabled { background: #374151; color: #6b7280; cursor: not-allowed; }
+
+    .url-bar {
+      background: #0f172a;
+      padding: 8px 16px;
+      font-size: 11px;
+      color: #64748b;
+      border-bottom: 1px solid #1e2a4a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-bar {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #1e2a4a;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.safe { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    .status-dot.warning { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+    .status-dot.danger { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+    .status-dot.scanning {
+      background: #6366f1;
+      animation: pulse 1s infinite;
+    }
+    .status-dot.idle { background: #374151; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px #6366f1; }
+      50% { opacity: 0.5; box-shadow: none; }
+    }
+
+    .status-text {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .status-text.safe { color: #22c55e; }
+    .status-text.warning { color: #f59e0b; }
+    .status-text.danger { color: #ef4444; }
+    .status-text.scanning { color: #a5b4fc; }
+    .status-text.idle { color: #64748b; }
+
+    .score-badge {
+      margin-left: auto;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .score-badge.safe { background: #14532d; color: #86efac; }
+    .score-badge.warning { background: #451a03; color: #fcd34d; }
+    .score-badge.danger { background: #450a0a; color: #fca5a5; }
+
+    .threats-container {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .threats-container::-webkit-scrollbar { width: 4px; }
+    .threats-container::-webkit-scrollbar-track { background: #0f172a; }
+    .threats-container::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
+
+    .section-label {
+      padding: 8px 16px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #475569;
+    }
+
+    .threat-item {
+      padding: 8px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border-bottom: 1px solid #0f172a;
+      cursor: default;
+    }
+    .threat-item:hover { background: #0f172a; }
+
+    .threat-icon {
+      font-size: 14px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .threat-body { flex: 1; min-width: 0; }
+    .threat-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: #e2e8f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .threat-desc {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .sev-badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+    .sev-critical { background: #7f1d1d; color: #fca5a5; }
+    .sev-high { background: #450a0a; color: #fca5a5; }
+    .sev-medium { background: #451a03; color: #fcd34d; }
+    .sev-low { background: #0c2a1a; color: #86efac; }
+    .sev-info { background: #0c1a2a; color: #93c5fd; }
+
+    .empty-state {
+      padding: 24px 16px;
+      text-align: center;
+    }
+    .empty-icon { font-size: 32px; margin-bottom: 8px; }
+    .empty-title { font-size: 14px; font-weight: 600; color: #22c55e; margin-bottom: 4px; }
+    .empty-desc { font-size: 11px; color: #64748b; }
+
+    .footer {
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #1e2a4a;
+      background: #0f172a;
+    }
+    .footer-link {
+      font-size: 11px;
+      color: #6366f1;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .footer-link:hover { color: #a5b4fc; }
+    .footer-time {
+      font-size: 10px;
+      color: #374151;
+    }
+
+    .loading-bar {
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #6366f1);
+      background-size: 200%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .loading-bar.hidden { display: none; }
+
+    .stats-row {
+      display: flex;
+      padding: 8px 16px;
+      gap: 8px;
+      border-bottom: 1px solid #1e2a4a;
+    }
+    .stat-box {
+      flex: 1;
+      background: #0f172a;
+      border-radius: 6px;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 18px;
+      font-weight: 700;
+      color: #a5b4fc;
+      line-height: 1;
+    }
+    .stat-num.red { color: #f87171; }
+    .stat-num.yellow { color: #fbbf24; }
+    .stat-num.green { color: #4ade80; }
+    .stat-label {
+      font-size: 9px;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <span class="logo-text">ANTIGRAVITY</span>
+    </div>
+    <button class="scan-btn" id="scanBtn">Scan Now</button>
+  </div>
+
+  <div class="url-bar" id="urlBar">No page loaded</div>
+  <div class="loading-bar hidden" id="loadingBar"></div>
+
+  <div class="status-bar">
+    <div class="status-dot idle" id="statusDot"></div>
+    <span class="status-text idle" id="statusText">Waiting for scan</span>
+    <span class="score-badge" id="scoreBadge" style="display:none"></span>
+  </div>
+
+  <div class="stats-row" id="statsRow" style="display:none">
+    <div class="stat-box">
+      <div class="stat-num red" id="statCritical">0</div>
+      <div class="stat-label">Critical</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num yellow" id="statHigh">0</div>
+      <div class="stat-label">High</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statMedium">0</div>
+      <div class="stat-label">Medium</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num green" id="statLow">0</div>
+      <div class="stat-label">Low</div>
+    </div>
+  </div>
+
+  <div class="threats-container" id="threatsContainer">
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title" style="color:#64748b">Click "Scan Now" or visit a page</div>
+      <div class="empty-desc">Antigravity will analyze the page for threats</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a class="footer-link" id="dashboardLink" href="http://localhost:5173" target="_blank">Open Dashboard →</a>
+    <span class="footer-time" id="footerTime"></span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
